@@ -19,8 +19,8 @@ def fix_create():
     pg.create_pipe(net, bus1, bus2, length_m=100, diameter_m=0.05, name="PIPE1")
     pg.create_pipe(net, bus1, bus3, length_m=200, diameter_m=0.05, name="PIPE2")
 
-    pg.create_station(net, bus0, bus1, p_lim_kw=50, p_bar=0.022, name="STATION")
-    pg.create_feeder(net, bus0, p_lim_kw=50, p_bar=4.5, name="FEEDER")
+    pg.create_station(net, bus0, bus1, p_lim_kw=50, p_bar=0.025, name="STATION")
+    pg.create_feeder(net, bus0, p_lim_kw=50, p_bar=0.9, name="FEEDER")
 
     return net
 
@@ -32,3 +32,39 @@ def test_len_of_created_df(fix_create):
     assert len(net.load.index) == 2
     assert len(net.feeder.index) == 1
     assert len(net.station.index) == 1
+
+
+def test_bus_creation_bad_bus_level_raise_exception(fix_create):
+    net = fix_create
+    with pytest.raises(ValueError) as e_info:
+        pg.create_bus(net, level="XX", name="BUSX")
+        msg = "The pressure level of the bus BUSX is not in {}".format(["HP", "MP", "BP+", "BP"])
+        assert e_info.value.message == msg
+    assert len(net.bus.index) == 4
+
+
+def test_pipe_creation_non_existing_bus_raise_exception(fix_create):
+    net = fix_create
+    with pytest.raises(ValueError) as e_info:
+        pg.create_pipe(net, "BUS1", "BUSX", length_m=100, diameter_m=0.05, name="PIPEX")
+        msg = "The bus {} does not exist !".format("BUSX")
+        assert e_info.value.message == msg
+    assert len(net.pipe.index) == 2
+
+
+def test_pipe_creation_different_levels_raise_exception(fix_create):
+    net = fix_create
+    with pytest.raises(ValueError) as e_info:
+        pg.create_pipe(net, "BUS0", "BUS1", length_m=100, diameter_m=0.05, name="PIPEX")
+        msg = "The buses BUS0 and BUS1 have a different pressure level !"
+        assert e_info.value.message == msg
+    assert len(net.pipe.index) == 2
+
+
+def test_station_creation_same_level_raise_exception(fix_create):
+    net = fix_create
+    with pytest.raises(ValueError) as e_info:
+        pg.create_station(net, "BUS2", "BUS3", p_lim_kw=50, p_bar=0.025, name="STATION")
+        msg = "The buses BUS2 and BUS3 have the same pressure level !"
+        assert e_info.value.message == msg
+    assert len(net.pipe.index) == 2
