@@ -1,5 +1,3 @@
-import pytest
-
 import networkx as nx
 import pandangas as pg
 import pandangas.topology as top
