@@ -7,4 +7,4 @@
 
 __version__ = "0.0.1"
 
-from pandangas.core import Network
+from pandangas.core import *
