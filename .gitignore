@@ -2,3 +2,4 @@
 venv
 .pytest*
 */__pycache__/*
+*egg-info
