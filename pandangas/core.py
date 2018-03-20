@@ -1,8 +1,12 @@
 import pandas as pd
+import logging
 
 
 class _Network:
     def __init__(self):
+
+        self.levels = ["MP", "BP"]
+
         self.bus = pd.DataFrame(columns=["name", "level", "zone", "in_service"])
         self.pipe = pd.DataFrame(columns=["name", "from_bus", "to_bus", "length_m", "diameter_m"])
         self.load = pd.DataFrame(columns=["name", "bus", "p_kw", "scaling"])
@@ -15,14 +19,20 @@ def create_empty_network():
 
 
 def create_bus(net, level, name, zone=None, in_service=True):
-    assert level in ["MP", "BP"]
+    try:
+        assert level in net.levels
+    except AssertionError:
+        logging.error("The pressure level of the bus {} is not in {}".format(name, net.levels))
+
     idx = len(net.bus.index)
     net.bus.loc[idx] = [name, level, zone, in_service]
     return name
 
 
 def create_pipe(net, from_bus, to_bus, length_m, diameter_m, name):
-    assert {from_bus, to_bus}.issubset(set(net.bus.name))
+    assert from_bus in net.bus.name.unique()
+    assert to_bus in net.bus.name.unique()
+    assert net.bus.loc[net.bus.name == from_bus, "level"].all() == net.bus.loc[net.bus.name == to_bus, "level"].all()
     idx = len(net.pipe.index)
     net.pipe.loc[idx] = [name, from_bus, to_bus, length_m, diameter_m]
     return name
