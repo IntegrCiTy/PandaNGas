@@ -1,13 +1,42 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+    Implementation of the network creation methods.
+
+    Usage:
+
+    >>> import pandangas as pg
+
+    >>> net = pg.create_empty_network()
+
+    >>> bus0 = pg.create_bus(net, level="MP", name="BUS0")
+    >>> bus1 = pg.create_bus(net, level="BP", name="BUS1")
+    >>> bus2 = pg.create_bus(net, level="BP", name="BUS2")
+    >>> bus3 = pg.create_bus(net, level="BP", name="BUS3")
+
+    >>> pg.create_load(net, bus2, p_kw=10.0, name="LOAD2")
+    >>> pg.create_load(net, bus2, p_kw=13.0, name="LOAD3")
+
+    >>> pg.create_pipe(net, bus1, bus2, length_m=100, diameter_m=0.05, name="PIPE1")
+    >>> pg.create_pipe(net, bus1, bus3, length_m=200, diameter_m=0.05, name="PIPE2")
+
+    >>> pg.create_station(net, bus0, bus1, p_lim_kw=50, p_bar=0.025, name="STATION")
+    >>> pg.create_feeder(net, bus0, p_lim_kw=50, p_bar=0.9, name="FEEDER")
+
+"""
+
 import pandas as pd
 import logging
 
 
 class _Network:
+
+    LEVELS = ["HP", "MP", "BP+", "BP"]
+
     def __init__(self):
 
-        self.levels = ["HP", "MP", "BP+", "BP"]
-
-        self.bus = pd.DataFrame(columns=["name", "level", "zone", "in_service"])
+        self.bus = pd.DataFrame(columns=["name", "level", "zone"])
         self.pipe = pd.DataFrame(columns=["name", "from_bus", "to_bus", "length_m", "diameter_m", "in_service"])
         self.load = pd.DataFrame(columns=["name", "bus", "p_kw", "min_p_bar", "scaling"])
         self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kw", "p_bar"])
@@ -68,7 +97,7 @@ def create_empty_network():
     return _Network()
 
 
-def create_bus(net, level, name, zone=None, in_service=True):
+def create_bus(net, level, name, zone=None):
     """
     Create a bus on a given network
 
@@ -76,18 +105,17 @@ def create_bus(net, level, name, zone=None, in_service=True):
     :param level: nominal pressure level of the bus
     :param name: name of the bus
     :param zone: zone of the bus (default: None)
-    :param in_service: if False, the simulation will not take this bus into account (default: True)
     :return: name of the bus
     """
     try:
-        assert level in net.levels
+        assert level in net.LEVELS
     except AssertionError:
-        msg = "The pressure level of the bus {} is not in {}".format(name, net.levels)
+        msg = "The pressure level of the bus {} is not in {}".format(name, net.LEVELS)
         logging.error(msg)
         raise ValueError(msg)
 
     idx = len(net.bus.index)
-    net.bus.loc[idx] = [name, level, zone, in_service]
+    net.bus.loc[idx] = [name, level, zone]
     return name
 
 
