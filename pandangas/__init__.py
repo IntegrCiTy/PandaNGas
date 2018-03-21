@@ -8,4 +8,5 @@
 __version__ = "0.0.1"
 
 from pandangas.core import *
+from pandangas.simulation import *
 
