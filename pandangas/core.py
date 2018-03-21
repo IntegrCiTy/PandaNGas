@@ -42,6 +42,34 @@ class _Network:
         self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kw", "p_bar"])
         self.station = pd.DataFrame(columns=["name", "bus_high", "bus_low", "p_lim_kw", "p_bar"])
 
+        self.res_bus = pd.DataFrame(columns=["name", "p_Pa"])
+        self.res_pipe = pd.DataFrame(columns=["name", "m_dot_kg/s", "v_m/s", "p_kW", "loading_percent"])
+        self.res_feeder = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
+        self.res_station = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
+
+        self.keys = ["bus", "pipe", "load", "feeder", "station", "res_bus", "res_pipe", "res_feeder", "res_station"]
+
+    def __repr__(self):
+        r = "This pandangas network includes the following parameter tables:"
+        par = []
+        res = []
+        for tb in list(self.keys):
+            if len(getattr(self, tb)) > 0:
+                if 'res_' in tb:
+                    res.append(tb)
+                else:
+                    par.append(tb)
+        for tb in par:
+            length = len(getattr(self, tb))
+            r += "\n   - %s (%s %s)" % (tb, length, "elements" if length > 1 else "element")
+        if res:
+            r += "\n and the following results tables:"
+            for tb in res:
+                length = len(getattr(self, tb))
+                r += "\n   - %s (%s %s)" % (tb, length, "elements" if length > 1 else "element")
+
+        return r
+
 
 def _try_existing_bus(net, bus):
     """

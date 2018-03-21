@@ -68,3 +68,11 @@ def test_station_creation_same_level_raise_exception(fix_create):
         msg = "The buses BUS2 and BUS3 have the same pressure level !"
         assert e_info.value.message == msg
     assert len(net.pipe.index) == 2
+
+
+def test_network_repr(fix_create):
+    net = fix_create
+
+    assert "This pandangas network includes the following parameter tables:" in repr(net)
+    assert "- bus (4 elements)" in repr(net)
+    assert "and the following results tables:" not in repr(net)
