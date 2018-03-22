@@ -16,7 +16,7 @@
     >>> bus3 = pg.create_bus(net, level="BP", name="BUS3")
 
     >>> pg.create_load(net, bus2, p_kw=10.0, name="LOAD2")
-    >>> pg.create_load(net, bus2, p_kw=13.0, name="LOAD3")
+    >>> pg.create_load(net, bus3, p_kw=13.0, name="LOAD3")
 
     >>> pg.create_pipe(net, bus1, bus2, length_m=100, diameter_m=0.05, name="PIPE1")
     >>> pg.create_pipe(net, bus1, bus3, length_m=200, diameter_m=0.05, name="PIPE2")
@@ -100,6 +100,7 @@ def _check_level(net, bus_a, bus_b, same=True):
     """
     lev_a = net.bus.loc[net.bus.name == bus_a, "level"].all()
     lev_b = net.bus.loc[net.bus.name == bus_b, "level"].all()
+
     if same:
         try:
             assert lev_a == lev_b

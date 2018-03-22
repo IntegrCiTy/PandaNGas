@@ -14,11 +14,12 @@ def fix_create():
     bus3 = pg.create_bus(net, level="BP", name="BUS3")
 
     pg.create_load(net, bus2, p_kw=10.0, name="LOAD2")
-    pg.create_load(net, bus2, p_kw=13.0, name="LOAD3")
+    pg.create_load(net, bus3, p_kw=13.0, name="LOAD3")
 
     pg.create_pipe(net, bus1, bus2, length_m=100, diameter_m=0.05, name="PIPE1")
     pg.create_pipe(net, bus1, bus3, length_m=200, diameter_m=0.05, name="PIPE2")
 
+    # TODO: switch to absolute pressure (Pa)
     pg.create_station(net, bus0, bus1, p_lim_kw=50, p_bar=0.025, name="STATION")
     pg.create_feeder(net, bus0, p_lim_kw=50, p_bar=0.9, name="FEEDER")
 
