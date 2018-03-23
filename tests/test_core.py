@@ -76,7 +76,6 @@ def test_station_creation_same_level_raise_exception(fix_create):
 
 def test_network_repr(fix_create):
     net = fix_create
-
     assert "This pandangas network includes the following parameter tables:" in repr(net)
     assert "- bus (5 elements)" in repr(net)
     assert "and the following results tables:" not in repr(net)

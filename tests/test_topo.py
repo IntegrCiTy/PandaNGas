@@ -24,3 +24,21 @@ def test_nxgraph_creation_not_in_service(fix_create):
     g2 = top.create_nxgraph(net, only_in_service=False)
     assert len(g2.nodes) == 5
     assert len(g2.edges) == 6
+
+
+def test_nxgraph_creation_data_nodes(fix_create):
+    net = fix_create
+    g = top.create_nxgraph(net)
+
+    assert nx.get_node_attributes(g, "level")["BUS0"] == "MP"
+    assert nx.get_node_attributes(g, "type")["BUS1"] == "FEED"
+    assert nx.get_node_attributes(g, "zone")["BUS2"] is None
+
+
+def test_nxgraph_creation_data_edges(fix_create):
+    net = fix_create
+    g = top.create_nxgraph(net)
+
+    assert nx.get_edge_attributes(g, "L_m")[("BUS1", "BUS2", 0)] == 400
+    assert nx.get_edge_attributes(g, "D_m")[("BUS2", "BUS3", 0)] == 0.05
+    assert nx.get_edge_attributes(g, "p_lim_kw")[("BUS0", "BUS1", 0)] == 50
