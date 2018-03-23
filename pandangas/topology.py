@@ -10,21 +10,16 @@ def create_nxgraph(net, only_in_service=True):
     :return: a MultiGraph
     """
 
-    g = nx.MultiGraph()
+    g = nx.MultiDiGraph()
 
     for idx, row in net.bus.iterrows():
-        g.add_node(row[0], index=idx, level=row[1], zone=row[2])
+        g.add_node(row[0], index=idx, level=row[1], zone=row[2], type=row[3])
 
     pipes = net.pipe
-    print(pipes)
     if only_in_service:
         pipes = pipes.loc[pipes["in_service"] != False]
-        print(pipes)
 
     for idx, row in pipes.iterrows():
         g.add_edge(row[1], row[2], name=row[0], index=idx, length_m=row[3], diameter=row[4], edge_type="PIPE")
-
-    for idx, row in net.station.iterrows():
-        g.add_edge(row[1], row[2], name=row[0], index=idx, p_lim_kw=row[3], p_bar=row[4], edge_type="STATION")
 
     return g

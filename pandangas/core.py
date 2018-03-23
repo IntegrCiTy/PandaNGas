@@ -36,7 +36,7 @@ class _Network:
 
     def __init__(self):
 
-        self.bus = pd.DataFrame(columns=["name", "level", "zone"])
+        self.bus = pd.DataFrame(columns=["name", "level", "zone", "type"])
         self.pipe = pd.DataFrame(columns=["name", "from_bus", "to_bus", "length_m", "diameter_m", "in_service"])
         self.load = pd.DataFrame(columns=["name", "bus", "p_kw", "min_p_bar", "scaling"])
         self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kw", "p_bar"])
@@ -117,6 +117,19 @@ def _check_level(net, bus_a, bus_b, same=True):
             raise ValueError(msg)
 
 
+def _change_bus_type(net, bus, bus_type):
+    idx = net.bus.index[net.bus["name"] == bus].tolist()[0]
+    old_type = net.bus.at[idx, "type"]
+    try:
+        assert old_type == "NODE"
+    except AssertionError:
+        msg = "The buses {} is already a {} !".format(bus, old_type)
+        logging.error(msg)
+        raise ValueError(msg)
+
+    net.bus.at[idx, "type"] = bus_type
+
+
 def create_empty_network():
     """
     Create an empty network
@@ -144,7 +157,7 @@ def create_bus(net, level, name, zone=None):
         raise ValueError(msg)
 
     idx = len(net.bus.index)
-    net.bus.loc[idx] = [name, level, zone]
+    net.bus.loc[idx] = [name, level, zone, "NODE"]
     return name
 
 
@@ -186,6 +199,8 @@ def create_load(net, bus, p_kw, name, min_p_bar=0.022, scaling=1.0):
 
     idx = len(net.load.index)
     net.load.loc[idx] = [name, bus, p_kw, min_p_bar, scaling]
+
+    _change_bus_type(net, bus, "LOAD")
     return name
 
 
@@ -204,6 +219,8 @@ def create_feeder(net, bus, p_lim_kw, p_bar, name):
 
     idx = len(net.feeder.index)
     net.feeder.loc[idx] = [name, bus, p_lim_kw, p_bar]
+
+    _change_bus_type(net, bus, "FEED")
     return name
 
 
@@ -225,4 +242,7 @@ def create_station(net, bus_high, bus_low, p_lim_kw, p_bar, name):
 
     idx = len(net.station.index)
     net.station.loc[idx] = [name, bus_high, bus_low, p_lim_kw, p_bar]
+
+    _change_bus_type(net, bus_high, "LOAD")
+    _change_bus_type(net, bus_low, "FEED")
     return name
