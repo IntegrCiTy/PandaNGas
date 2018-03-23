@@ -20,6 +20,9 @@ def create_nxgraph(net, only_in_service=True):
         pipes = pipes.loc[pipes["in_service"] != False]
 
     for idx, row in pipes.iterrows():
-        g.add_edge(row[1], row[2], name=row[0], index=idx, length_m=row[3], diameter=row[4], edge_type="PIPE")
+        g.add_edge(row[1], row[2], name=row[0], index=idx, length_m=row[3], diameter=row[4], type="PIPE")
+
+    for idx, row in net.station.iterrows():
+        g.add_edge(row[1], row[2], name=row[0], index=idx, p_lim_kw=row[3], p_bar=row[4], type="STATION")
 
     return g

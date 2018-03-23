@@ -10,7 +10,7 @@ def test_nxgraph_creation(fix_create):
     g = top.create_nxgraph(net)
     assert type(g) == nx.MultiDiGraph
     assert len(g.nodes) == 5
-    assert len(g.edges) == 4
+    assert len(g.edges) == 5
 
 
 def test_nxgraph_creation_not_in_service(fix_create):
@@ -19,8 +19,8 @@ def test_nxgraph_creation_not_in_service(fix_create):
 
     g = top.create_nxgraph(net)
     assert len(g.nodes) == 5
-    assert len(g.edges) == 4
+    assert len(g.edges) == 5
 
     g2 = top.create_nxgraph(net, only_in_service=False)
     assert len(g2.nodes) == 5
-    assert len(g2.edges) == 5
+    assert len(g2.edges) == 6
