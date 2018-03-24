@@ -26,3 +26,13 @@ def create_nxgraph(net, only_in_service=True):
         g.add_edge(row[1], row[2], name=row[0], index=idx, p_lim_kw=row[3], p_bar=row[4], type="STATION")
 
     return g
+
+
+def graphs_by_level_as_dict(net):
+    levels = net.bus["level"].unique()
+    g = create_nxgraph(net)
+    g_dict = {}
+    for l in levels:
+        nodes = [n for n, data in g.nodes(data=True) if data["level"] == l]
+        g_dict[l] = g.subgraph(nodes)
+    return g_dict

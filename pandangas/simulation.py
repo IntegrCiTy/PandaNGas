@@ -27,31 +27,25 @@ def _scaled_loads_as_dict(net):
     return {row[1]: row[2]*row[4] for _, row in net.load.iterrows()}
 
 
+def _p_nom_feed_as_dict(net):
+    return {row[1]: row[3] for _, row in net.feeder.iterrows()}
+
+
 def _p_min_loads_as_dict(net):
     return {row[1]: row[3] for _, row in net.load.iterrows()}
-
-
-def _graphs_by_level_as_dict(net):
-    levels = net.bus["level"].unique()
-    g = top.create_nxgraph(net)
-    g_dict = {}
-    for l in levels:
-        nodes = [n for n, data in g.nodes(data=True) if data["level"] == l]
-        g_dict[l] = g.subgraph(nodes)
-    return g_dict
 
 
 def _i_mat(graph):
     return nx.incidence_matrix(graph, oriented=True).todense()
 
 
-def _dp_from_m_dot_vec(m_dot, L, D, eps, fluid):
-    A = math.pi * (D/2)**2
-    V = m_dot / A / fluid.rho
-    Re = fvec.core.Reynolds(V, D, fluid.rho, fluid.mu)
-    fd = fvec.friction_factor(Re, eD=eps/D)
-    K = fvec.K_from_f(fd=fd, L=L, D=D)
-    return fvec.dP_from_K(K, rho=fluid.rho, V=V)
+def _dp_from_m_dot_vec(m_dot, l, d, e, fluid):
+    a = math.pi * (d/2)**2
+    v = m_dot / a / fluid.rho
+    re = fvec.core.Reynolds(v, d, fluid.rho, fluid.mu)
+    fd = fvec.friction_factor(re, eD=e/d)
+    k = fvec.K_from_f(fd=fd, L=l, D=d)
+    return fvec.dP_from_K(k, rho=fluid.rho, V=v)
 
 
 def _eq_m_dot_sum(m_dot_pipes, m_dot_nodes, i_mat):
@@ -59,11 +53,55 @@ def _eq_m_dot_sum(m_dot_pipes, m_dot_nodes, i_mat):
     return np.asarray(node_eq)[0]
 
 
+def _eq_pressure(p_nodes, m_dot_pipes, i_mat, l, d, e, fluid):
+    dps_eq = np.matmul(p_nodes, i_mat) + _dp_from_m_dot_vec(m_dot_pipes, l, d, e, fluid)
+    return np.asarray(dps_eq)[0]
+
+
+def _eq_m_dot_node(m_dot_nodes, gr, loads):
+    bus_load = np.array([m_dot_nodes[i] - loads[node]
+                         for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "LOAD"])
+    bus_node = np.array([m_dot_nodes[i]
+                         for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "NODE"])
+    return np.concatenate((bus_load, bus_node))
+
+
+def _eq_p_feed(p_nodes, gr, p_nom):
+    p_feed = np.array([p_nodes[i] - p_nom[node]
+                       for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "FEED"])
+    return p_feed
+
+
+def _init_variables():
+    return np.array([])
+
+
+def _eq_model(x, *args):
+    mat, gr, lengths, diameters, roughness, fluid, loads, p_nom = args
+    p_nodes = x[:len(gr.nodes)]
+    m_dot_pipes = x[len(gr.nodes):len(gr.nodes)+len(gr.edges)]
+    m_dot_nodes = x[len(gr.nodes)+len(gr.edges):]
+    return np.concatenate((
+        _eq_m_dot_sum(m_dot_pipes, m_dot_nodes, mat),
+        _eq_pressure(p_nodes, m_dot_pipes, mat, lengths, diameters, roughness, fluid),
+        _eq_m_dot_node(m_dot_nodes, gr, loads),
+        _eq_p_feed(p_nodes, gr, p_nom)))
+
+
 def runpp(net, level="BP", t_grnd=10+273.15):
-    g = _graphs_by_level_as_dict(net)[level]
+    g = top.graphs_by_level_as_dict(net)[level]
 
     gas = Chemical('natural gas', T=t_grnd, P=net.LEVELS[level]*1E5)
     material = fluids.nearest_material_roughness('steel', clean=True)
     eps = fluids.material_roughness(material)
 
+    x0 = _init_variables()
+    i_mat = _i_mat(g)
+    leng = np.array([data["L_m"] for _, _, data in g.edges(data=True)])
+    diam = np.array([data["D_m"] for _, _, data in g.edges(data=True)])
 
+    # TODO: select only level LOAD and FEED
+    # load = _scaled_loads_as_dict(net)
+    # p_nom = _p_nom_feed_as_dict(net)
+
+    res = fsolve(_eq_model, x0, args=(i_mat, g, leng, diam, eps, gas, load, p_nom))

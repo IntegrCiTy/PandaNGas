@@ -42,3 +42,11 @@ def test_nxgraph_creation_data_edges(fix_create):
     assert nx.get_edge_attributes(g, "L_m")[("BUS1", "BUS2", 0)] == 400
     assert nx.get_edge_attributes(g, "D_m")[("BUS2", "BUS3", 0)] == 0.05
     assert nx.get_edge_attributes(g, "p_lim_kw")[("BUS0", "BUS1", 0)] == 50
+
+
+def test_graphs_by_level(fix_create):
+    net = fix_create
+    g = top.graphs_by_level_as_dict(net)
+    assert set(g.keys()).issubset(set(net.LEVELS.keys()))
+    assert len(g["BP"].nodes) == 3
+    assert len(g["MP"].nodes) == 2
