@@ -10,17 +10,17 @@ from tests.test_core import fix_create
 
 def test_scaled_loads(fix_create):
     net = fix_create
-    assert sim._scaled_loads_as_dict(net) == {'BUS2': 10.0, 'BUS3': 13.0}
+    assert sim._scaled_loads_as_dict(net) == {'BUS2': 0.001312, 'BUS3': 0.002362}
 
 
 def test_p_min_loads(fix_create):
     net = fix_create
-    assert sim._p_min_loads_as_dict(net) == {'BUS2': 0.022, 'BUS3': 0.022}
+    assert sim._p_min_loads_as_dict(net) == {'BUS2': 0.022E5, 'BUS3': 0.022E5}
 
 
 def test_p_nom_feed(fix_create):
     net = fix_create
-    assert sim._p_nom_feed_as_dict(net) == {'BUSF': 0.9}
+    assert sim._p_nom_feed_as_dict(net) == {'BUS1': 0.025E5, 'BUSF': 0.9E5}
 
 
 def test_i_mat(fix_create):
@@ -41,6 +41,31 @@ def test_dp_from_m_dot():
     assert round(sim._dp_from_m_dot_vec(0.005, 100, 0.05, eps, gas).tolist(), 1) == 61.8
 
 
-def test_runpp(fix_create):
+def test_eq_pressure():
+    pass
+
+
+def test_eq_m_dot_node():
+    pass
+
+
+def test_eq_p_feed():
+    pass
+
+
+def test_init_var():
+    pass
+
+
+def test_eq_model():
+    pass
+
+
+def test_run_sim(fix_create):
     net = fix_create
-    sim.runpp(net)
+    p_nodes, m_dot_pipes, m_dot_nodes = sim._run_sim(net)
+    print("p_nodes :", p_nodes)
+    print("m_dot_pipes :", m_dot_pipes)
+    print("m_dot_nodes :", m_dot_nodes)
+    waited_p_nodes = np.array([2499.7, 2500.0, 2499.66])
+    assert np.array_equal(p_nodes, waited_p_nodes)

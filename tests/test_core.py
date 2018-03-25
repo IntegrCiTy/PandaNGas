@@ -14,8 +14,8 @@ def fix_create():
     bus2 = pg.create_bus(net, level="BP", name="BUS2")
     bus3 = pg.create_bus(net, level="BP", name="BUS3")
 
-    pg.create_load(net, bus2, p_kw=10.0, name="LOAD2")
-    pg.create_load(net, bus3, p_kw=13.0, name="LOAD3")
+    pg.create_load(net, bus2, p_kW=50.0, name="LOAD2")
+    pg.create_load(net, bus3, p_kW=90.0, name="LOAD3")
 
     pg.create_pipe(net, busf, bus0, length_m=100, diameter_m=0.05, name="PIPE0")
     pg.create_pipe(net, bus1, bus2, length_m=400, diameter_m=0.05, name="PIPE1")
@@ -23,8 +23,9 @@ def fix_create():
     pg.create_pipe(net, bus2, bus3, length_m=500, diameter_m=0.05, name="PIPE3")
 
     # TODO: switch to absolute pressure (Pa)
-    pg.create_station(net, bus0, bus1, p_lim_kw=50, p_bar=0.025, name="STATION")
-    pg.create_feeder(net, busf, p_lim_kw=50, p_bar=0.9, name="FEEDER")
+
+    pg.create_station(net, bus0, bus1, p_lim_kW=50, p_Pa=0.025E5, name="STATION")
+    pg.create_feeder(net, busf, p_lim_kW=50, p_Pa=0.9E5, name="FEEDER")
 
     return net
 
@@ -68,7 +69,7 @@ def test_pipe_creation_different_levels_raise_exception(fix_create):
 def test_station_creation_same_level_raise_exception(fix_create):
     net = fix_create
     with pytest.raises(ValueError) as e_info:
-        pg.create_station(net, "BUS2", "BUS3", p_lim_kw=50, p_bar=0.025, name="STATION")
+        pg.create_station(net, "BUS2", "BUS3", p_lim_kW=50, p_Pa=0.025E5, name="STATION")
         msg = "The buses BUS2 and BUS3 have the same pressure level !"
         assert e_info.value.message == msg
     assert len(net.station.index) == 1

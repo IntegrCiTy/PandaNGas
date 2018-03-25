@@ -15,14 +15,14 @@
     >>> bus2 = pg.create_bus(net, level="BP", name="BUS2")
     >>> bus3 = pg.create_bus(net, level="BP", name="BUS3")
 
-    >>> pg.create_load(net, bus2, p_kw=10.0, name="LOAD2")
-    >>> pg.create_load(net, bus3, p_kw=13.0, name="LOAD3")
+    >>> pg.create_load(net, bus2, p_kW=10.0, name="LOAD2")
+    >>> pg.create_load(net, bus3, p_kW=13.0, name="LOAD3")
 
     >>> pg.create_pipe(net, bus1, bus2, length_m=100, diameter_m=0.05, name="PIPE1")
     >>> pg.create_pipe(net, bus1, bus3, length_m=200, diameter_m=0.05, name="PIPE2")
 
-    >>> pg.create_station(net, bus0, bus1, p_lim_kw=50, p_bar=0.025, name="STATION")
-    >>> pg.create_feeder(net, bus0, p_lim_kw=50, p_bar=0.9, name="FEEDER")
+    >>> pg.create_station(net, bus0, bus1, p_lim_kW=50, p_Pa=0.025E5, name="STATION")
+    >>> pg.create_feeder(net, bus0, p_lim_kW=50, p_Pa=0.9E5, name="FEEDER")
 
 """
 
@@ -32,15 +32,16 @@ import logging
 
 class _Network:
 
-    LEVELS = {"HP": 5.0, "MP": 1.0, "BP+": 0.1, "BP": 0.025}
+    LEVELS = {"HP": 5.0E5, "MP": 1.0E5, "BP+": 0.1E5, "BP": 0.025E5}
+    LHV = 38.1E3  # kJ/kg
 
     def __init__(self):
 
         self.bus = pd.DataFrame(columns=["name", "level", "zone", "type"])
         self.pipe = pd.DataFrame(columns=["name", "from_bus", "to_bus", "length_m", "diameter_m", "in_service"])
-        self.load = pd.DataFrame(columns=["name", "bus", "p_kw", "min_p_bar", "scaling"])
-        self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kw", "p_bar"])
-        self.station = pd.DataFrame(columns=["name", "bus_high", "bus_low", "p_lim_kw", "p_bar"])
+        self.load = pd.DataFrame(columns=["name", "bus", "p_kW", "min_p_Pa", "scaling"])
+        self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kW", "p_Pa"])
+        self.station = pd.DataFrame(columns=["name", "bus_high", "bus_low", "p_lim_kW", "p_Pa"])
 
         self.res_bus = pd.DataFrame(columns=["name", "p_Pa"])
         self.res_pipe = pd.DataFrame(columns=["name", "m_dot_kg/s", "v_m/s", "p_kW", "loading_percent"])
@@ -183,56 +184,56 @@ def create_pipe(net, from_bus, to_bus, length_m, diameter_m, name, in_service=Tr
     return name
 
 
-def create_load(net, bus, p_kw, name, min_p_bar=0.022, scaling=1.0):
+def create_load(net, bus, p_kW, name, min_p_Pa=0.022E5, scaling=1.0):
     """
     Create a load attached to an existing bus in a given network
 
     :param net: the given network
     :param bus: the existing bus
-    :param p_kw: power consumed by the load (in [kW])
+    :param p_kW: power consumed by the load (in [kW])
     :param name: name of the load
-    :param min_p_bar: minimum acceptable pressure
+    :param min_p_Pa: minimum acceptable pressure
     :param scaling: scaling factor for the load (default: 1.0)
     :return: name of the load
     """
     _try_existing_bus(net, bus)
 
     idx = len(net.load.index)
-    net.load.loc[idx] = [name, bus, p_kw, min_p_bar, scaling]
+    net.load.loc[idx] = [name, bus, p_kW, min_p_Pa, scaling]
 
     _change_bus_type(net, bus, "LOAD")
     return name
 
 
-def create_feeder(net, bus, p_lim_kw, p_bar, name):
+def create_feeder(net, bus, p_lim_kW, p_Pa, name):
     """
     Create a feeder attached to an existing bus in a given network
 
     :param net: the given network
     :param bus: the existing bus
-    :param p_lim_kw: maximum power flowing through the feeder
-    :param p_bar: operating pressure level at the output of the feeder
+    :param p_lim_kW: maximum power flowing through the feeder
+    :param p_Pa: operating pressure level at the output of the feeder
     :param name: name of the feeder
     :return: name of the feeder
     """
     _try_existing_bus(net, bus)
 
     idx = len(net.feeder.index)
-    net.feeder.loc[idx] = [name, bus, p_lim_kw, p_bar]
+    net.feeder.loc[idx] = [name, bus, p_lim_kW, p_Pa]
 
     _change_bus_type(net, bus, "FEED")
     return name
 
 
-def create_station(net, bus_high, bus_low, p_lim_kw, p_bar, name):
+def create_station(net, bus_high, bus_low, p_lim_kW, p_Pa, name):
     """
     Create a pressure station between two existing buses on different pressure level in a given network
 
     :param net: the given network
     :param bus_high: the existing bus with higher nominal pressure
     :param bus_low: the existing bus with lower nominal pressure
-    :param p_lim_kw: maximum power flowing through the feeder
-    :param p_bar: operating pressure level at the output of the feeder
+    :param p_lim_kW: maximum power flowing through the feeder
+    :param p_Pa: operating pressure level at the output of the feeder
     :param name: name of the station
     :return: name of the station
     """
@@ -241,7 +242,7 @@ def create_station(net, bus_high, bus_low, p_lim_kw, p_bar, name):
     _check_level(net, bus_high, bus_low, same=False)
 
     idx = len(net.station.index)
-    net.station.loc[idx] = [name, bus_high, bus_low, p_lim_kw, p_bar]
+    net.station.loc[idx] = [name, bus_high, bus_low, p_lim_kW, p_Pa]
 
     _change_bus_type(net, bus_high, "LOAD")
     _change_bus_type(net, bus_low, "FEED")
