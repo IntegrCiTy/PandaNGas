@@ -32,7 +32,7 @@ import logging
 
 class _Network:
 
-    LEVELS = {"HP": 5.0E5, "MP": 1.0E5, "BP+": 0.1E5, "BP": 0.025E5}
+    LEVELS = {"HP": 5.0E5, "MP": 1.0E5, "BP+": 0.1E5, "BP": 0.025E5}  # Pa
     LHV = 38.1E3  # kJ/kg
 
     def __init__(self):

@@ -14,8 +14,8 @@ def fix_create():
     bus2 = pg.create_bus(net, level="BP", name="BUS2")
     bus3 = pg.create_bus(net, level="BP", name="BUS3")
 
-    pg.create_load(net, bus2, p_kW=50.0, name="LOAD2")
-    pg.create_load(net, bus3, p_kW=90.0, name="LOAD3")
+    pg.create_load(net, bus2, p_kW=10.0, name="LOAD2")
+    pg.create_load(net, bus3, p_kW=15.0, name="LOAD3")
 
     pg.create_pipe(net, busf, bus0, length_m=100, diameter_m=0.05, name="PIPE0")
     pg.create_pipe(net, bus1, bus2, length_m=400, diameter_m=0.05, name="PIPE1")
