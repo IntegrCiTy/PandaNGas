@@ -34,6 +34,7 @@ class _Network:
 
     LEVELS = {"HP": 5.0E5, "MP": 1.0E5, "BP+": 0.1E5, "BP": 0.025E5}  # Pa
     LHV = 38.1E3  # kJ/kg
+    V_MAX = 2.0   # m/s
 
     def __init__(self):
 
@@ -48,7 +49,7 @@ class _Network:
         self.res_feeder = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
         self.res_station = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
 
-        self.keys = ["bus", "pipe", "load", "feeder", "station", "res_bus", "res_pipe", "res_feeder", "res_station"]
+        self.keys = {"bus", "pipe", "load", "feeder", "station"}
 
     def __repr__(self):
         r = "This pandangas network includes the following parameter tables:"

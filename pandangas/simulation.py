@@ -120,4 +120,4 @@ def _run_sim(net, level="BP", t_grnd=10+273.15):
     m_dot_pipes = {data["name"]: m_dot_pipes[i] for i, (_, _, data) in enumerate(g.edges(data=True))}
     m_dot_nodes = {n: m_dot_nodes[i] for i, n in enumerate(g.nodes)}
 
-    return p_nodes, m_dot_pipes, m_dot_nodes
+    return p_nodes, m_dot_pipes, m_dot_nodes, gas

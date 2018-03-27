@@ -42,7 +42,8 @@ def test_dp_from_m_dot():
 
 def test_run_sim(fix_create):
     net = fix_create
-    p_nodes, m_dot_pipes, m_dot_nodes = sim._run_sim(net)
+    p_nodes, m_dot_pipes, m_dot_nodes, gas = sim._run_sim(net)
+    assert round(gas.rho, 3) == 0.017
     assert p_nodes == {'BUS1': 2500.0, 'BUS2': 1962.7, 'BUS3': 1827.8}
     assert m_dot_pipes == {'PIPE3': 6.6e-05, 'PIPE1': 0.000328, 'PIPE2': 0.000328}
     assert m_dot_nodes == {'BUS1': -0.000656, 'BUS2': 0.000262, 'BUS3': 0.000394}
