@@ -14,6 +14,8 @@ import numpy as np
 import networkx as nx
 import pandangas.topology as top
 
+from pandangas.utilities import get_index
+
 import math
 import fluids
 import fluids.vectorized as fvec
@@ -24,7 +26,13 @@ from thermo.chemical import Chemical
 
 
 def _scaled_loads_as_dict(net):
-    return {row[1]: round(row[2]*row[4]/net.LHV, 6) for _, row in net.load.iterrows()}  # kW to kg/s
+    loads = {row[1]: round(row[2]*row[4]/net.LHV, 6) for _, row in net.load.iterrows()}  # kW to kg/s
+    stations = {}
+    for _, row in net.res_station.iterrows():
+        idx_stat = get_index(row[0], net.station)
+        stations[net.station.at[idx_stat, "bus_high"]] = row[2]
+    loads.update(stations)
+    return loads
 
 
 def _p_nom_feed_as_dict(net):
