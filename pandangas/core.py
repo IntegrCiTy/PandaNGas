@@ -10,7 +10,9 @@
 
     >>> net = pg.create_empty_network()
 
+    >>> busf = pg.create_bus(net, level="MP", name="BUSF")
     >>> bus0 = pg.create_bus(net, level="MP", name="BUS0")
+
     >>> bus1 = pg.create_bus(net, level="BP", name="BUS1")
     >>> bus2 = pg.create_bus(net, level="BP", name="BUS2")
     >>> bus3 = pg.create_bus(net, level="BP", name="BUS3")
@@ -18,11 +20,13 @@
     >>> pg.create_load(net, bus2, p_kW=10.0, name="LOAD2")
     >>> pg.create_load(net, bus3, p_kW=13.0, name="LOAD3")
 
-    >>> pg.create_pipe(net, bus1, bus2, length_m=100, diameter_m=0.05, name="PIPE1")
-    >>> pg.create_pipe(net, bus1, bus3, length_m=200, diameter_m=0.05, name="PIPE2")
+    >>> pg.create_pipe(net, busf, bus0, length_m=100, diameter_m=0.05, name="PIPE0")
+    >>> pg.create_pipe(net, bus1, bus2, length_m=400, diameter_m=0.05, name="PIPE1")
+    >>> pg.create_pipe(net, bus1, bus3, length_m=500, diameter_m=0.05, name="PIPE2")
+    >>> pg.create_pipe(net, bus2, bus3, length_m=500, diameter_m=0.05, name="PIPE3")
 
     >>> pg.create_station(net, bus0, bus1, p_lim_kW=50, p_Pa=0.025E5, name="STATION")
-    >>> pg.create_feeder(net, bus0, p_lim_kW=50, p_Pa=0.9E5, name="FEEDER")
+    >>> pg.create_feeder(net, busf, p_lim_kW=50, p_Pa=0.9E5, name="FEEDER")
 
 """
 
@@ -49,13 +53,13 @@ class _Network:
         self.res_feeder = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
         self.res_station = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
 
-        self.keys = {"bus", "pipe", "load", "feeder", "station"}
+        self.keys = {"bus", "pipe", "load", "feeder", "station", "res_bus", "res_pipe", "res_feeder", "res_station"}
 
     def __repr__(self):
         r = "This pandangas network includes the following parameter tables:"
         par = []
         res = []
-        for tb in list(self.keys):
+        for tb in self.keys:
             if len(getattr(self, tb)) > 0:
                 if 'res_' in tb:
                     res.append(tb)
@@ -202,7 +206,7 @@ def create_load(net, bus, p_kW, name, min_p_Pa=0.022E5, scaling=1.0):
     idx = len(net.load.index)
     net.load.loc[idx] = [name, bus, p_kW, min_p_Pa, scaling]
 
-    _change_bus_type(net, bus, "LOAD")
+    _change_bus_type(net, bus, "SINK")
     return name
 
 
@@ -222,7 +226,7 @@ def create_feeder(net, bus, p_lim_kW, p_Pa, name):
     idx = len(net.feeder.index)
     net.feeder.loc[idx] = [name, bus, p_lim_kW, p_Pa]
 
-    _change_bus_type(net, bus, "FEED")
+    _change_bus_type(net, bus, "SRCE")
     return name
 
 
@@ -245,6 +249,6 @@ def create_station(net, bus_high, bus_low, p_lim_kW, p_Pa, name):
     idx = len(net.station.index)
     net.station.loc[idx] = [name, bus_high, bus_low, p_lim_kW, p_Pa]
 
-    _change_bus_type(net, bus_high, "LOAD")
-    _change_bus_type(net, bus_low, "FEED")
+    _change_bus_type(net, bus_high, "SINK")
+    _change_bus_type(net, bus_low, "SRCE")
     return name

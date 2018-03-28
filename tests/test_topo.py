@@ -31,7 +31,7 @@ def test_nxgraph_creation_data_nodes(fix_create):
     g = top.create_nxgraph(net)
 
     assert nx.get_node_attributes(g, "level")["BUS0"] == "MP"
-    assert nx.get_node_attributes(g, "type")["BUS1"] == "FEED"
+    assert nx.get_node_attributes(g, "type")["BUS1"] == "SRCE"
     assert nx.get_node_attributes(g, "zone")["BUS2"] is None
 
 

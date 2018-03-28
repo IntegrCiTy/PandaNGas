@@ -63,7 +63,7 @@ def _eq_pressure(p_nodes, m_dot_pipes, i_mat, l, d, e, fluid):
 
 def _eq_m_dot_node(m_dot_nodes, gr, loads):
     bus_load = np.array([m_dot_nodes[i] - loads[node]
-                         for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "LOAD"])
+                         for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "SINK"])
     bus_node = np.array([m_dot_nodes[i]
                          for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "NODE"])
     return np.concatenate((bus_load, bus_node))
@@ -71,7 +71,7 @@ def _eq_m_dot_node(m_dot_nodes, gr, loads):
 
 def _eq_p_feed(p_nodes, gr, p_nom):
     p_feed = np.array([p_nodes[i] - p_nom[node]
-                       for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "FEED"])
+                       for i, (node, data) in enumerate(gr.nodes(data=True)) if data["type"] == "SRCE"])
     return p_feed
 
 

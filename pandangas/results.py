@@ -69,10 +69,8 @@ def runpp(net, level="BP", t_grnd=10+273.15):
         if node in net.bus["name"].unique():
             idx = _index_of_a_bus_in_res(net, node)
             net.res_bus.loc[idx] = [node, value]
-    net.keys.update("res_bus")
 
     for pipe, m_dot in m_dot_pipes.items():
         idx = _index_of_a_pipe_in_res(net, pipe)
         v = _v_from_m_dot(net, pipe, m_dot, fluid)
         net.res_pipe.loc[idx] = [pipe, m_dot, v, m_dot * net.LHV, 100*v/net.V_MAX]
-    net.keys.update("res_pipe")
