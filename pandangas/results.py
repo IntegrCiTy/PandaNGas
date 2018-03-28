@@ -17,42 +17,7 @@
 from math import pi
 
 import pandangas.simulation as sim
-
-
-def _index_of_a_bus_in_res(net, bus):
-    """
-    Return the index of the bus given its name in res_bus DataFrame of a network.
-    Return a new index if the bus doesn't exist yet
-
-    :param net: the given network
-    :param bus: the name of the bus
-    :return: the index of the bus
-    """
-
-    if bus in net.res_bus["name"].unique():
-        idx = net.res_bus.index[net.res_bus["name"] == bus].tolist()[0]
-    else:
-        idx = len(net.res_bus.index)
-
-    return idx
-
-
-def _index_of_a_pipe_in_res(net, pipe):
-    """
-    Return the index of the pipe given its name in res_pipe DataFrame of a network.
-    Return a new index if the pipe doesn't exist yet
-
-    :param net: the given network
-    :param pipe: the name of the pipe
-    :return: the index of the pipe
-    """
-
-    if pipe in net.res_pipe["name"].unique():
-        idx = net.res_pipe.index[net.res_bus["name"] == pipe].tolist()[0]
-    else:
-        idx = len(net.res_pipe.index)
-
-    return idx
+from pandangas.utilities import get_index
 
 
 def _v_from_m_dot(net, pipe, m_dot, fluid):
@@ -67,10 +32,17 @@ def runpp(net, level="BP", t_grnd=10+273.15):
 
     for node, value in p_nodes.items():
         if node in net.bus["name"].unique():
-            idx = _index_of_a_bus_in_res(net, node)
+            idx = get_index(node, net.bus)
             net.res_bus.loc[idx] = [node, value]
 
     for pipe, m_dot in m_dot_pipes.items():
-        idx = _index_of_a_pipe_in_res(net, pipe)
+        idx = get_index(pipe, net.pipe)
         v = _v_from_m_dot(net, pipe, m_dot, fluid)
         net.res_pipe.loc[idx] = [pipe, m_dot, v, m_dot * net.LHV, 100*v/net.V_MAX]
+
+    for node, m_dot in m_dot_nodes.items():
+        if node in net.station["bus_low"].unique():
+            idx_stat = get_index(node, net.station, col="bus_low")
+            stat = net.station.at[idx_stat, "name"]
+            idx = get_index(stat, net.res_station)
+            net.res_station.loc[idx] = [stat, -m_dot, -m_dot * net.LHV, -100*m_dot*net.LHV/net.station.at[idx_stat, "p_lim_kW"]]
