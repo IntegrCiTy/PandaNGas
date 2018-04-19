@@ -34,6 +34,9 @@ import pandas as pd
 import logging
 
 
+logging.basicConfig(level=logging.DEBUG)
+
+
 class _Network:
 
     LEVELS = {"HP": 5.0E5, "MP": 1.0E5, "BP+": 0.1E5, "BP": 0.025E5}  # Pa

@@ -14,6 +14,8 @@ import numpy as np
 import networkx as nx
 import pandangas.topology as top
 
+import logging
+
 from pandangas.utilities import get_index
 
 import math
@@ -87,6 +89,7 @@ def _init_variables(gr, p_nom):
     p_nodes_init = np.array([p_nom]*len(gr.nodes))
     m_dot_pipes_init = np.array([0.002]*len(gr.edges))
     m_dot_nodes_init = np.array([0.001]*len(gr.nodes))
+
     return np.concatenate((p_nodes_init, m_dot_pipes_init, m_dot_nodes_init))
 
 
@@ -95,6 +98,7 @@ def _eq_model(x, *args):
     p_nodes = x[:len(gr.nodes)]
     m_dot_pipes = x[len(gr.nodes):len(gr.nodes)+len(gr.edges)]
     m_dot_nodes = x[len(gr.nodes)+len(gr.edges):]
+
     return np.concatenate((
         _eq_m_dot_sum(m_dot_pipes, m_dot_nodes, mat),
         _eq_pressure(p_nodes, m_dot_pipes, mat, lengths, diameters, roughness, fluid),
@@ -117,6 +121,10 @@ def _run_sim(net, level="BP", t_grnd=10+273.15):
 
     load = _scaled_loads_as_dict(net)
     p_nom = _p_nom_feed_as_dict(net)
+
+    logging.debug("SIM {}".format(level))
+    logging.debug("LOADS {}".format(load))
+    logging.debug("P_NOM {}".format(p_nom))
 
     res = fsolve(_eq_model, x0, args=(i_mat, g, leng, diam, eps, gas, load, p_nom))
 

@@ -32,8 +32,8 @@ def _v_from_m_dot(net, pipe, m_dot, fluid):
 def runpp(net, t_grnd=10+273.15):
     sorted_levels = sorted(net.LEVELS.items(), key=operator.itemgetter(1))
     for level, value in sorted_levels:
-        logging.info("Compute level {}".format(level))
         if level in net.bus["level"].unique():
+            logging.info("Compute level {}".format(level))
             p_nodes, m_dot_pipes, m_dot_nodes, fluid = sim._run_sim(net, level, t_grnd)
 
             for node, value in p_nodes.items():
