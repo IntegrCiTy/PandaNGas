@@ -71,7 +71,7 @@ def fix_create_full_mp():
     pg.create_pipe(net, bus1, bus3, length_m=500, diameter_m=0.05, name="PIPE2")
     pg.create_pipe(net, bus2, bus3, length_m=500, diameter_m=0.05, name="PIPE3")
 
-    # TODO: switch to absolute pressure (Pa)
+    # TODO: switch to absolute pressure (Pa) ?
 
     pg.create_feeder(net, busf, p_lim_kW=50, p_Pa=0.9E5, name="FEEDER")
 

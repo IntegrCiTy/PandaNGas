@@ -39,6 +39,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class _Network:
 
+    # TODO: add H2/CH4 composition
     LEVELS = {"HP": 5.0E5, "MP": 1.0E5, "BP+": 0.1E5, "BP": 0.025E5}  # Pa
     LHV = 38.1E3  # kJ/kg
     V_MAX = 2.0   # m/s
@@ -46,7 +47,7 @@ class _Network:
     def __init__(self):
 
         self.bus = pd.DataFrame(columns=["name", "level", "zone", "type"])
-        self.pipe = pd.DataFrame(columns=["name", "from_bus", "to_bus", "length_m", "diameter_m", "in_service"])
+        self.pipe = pd.DataFrame(columns=["name", "from_bus", "to_bus", "length_m", "diameter_m", "material", "in_service"])
         self.load = pd.DataFrame(columns=["name", "bus", "p_kW", "min_p_Pa", "scaling"])
         self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kW", "p_Pa"])
         self.station = pd.DataFrame(columns=["name", "bus_high", "bus_low", "p_lim_kW", "p_Pa"])
@@ -170,7 +171,8 @@ def create_bus(net, level, name, zone=None):
     return name
 
 
-def create_pipe(net, from_bus, to_bus, length_m, diameter_m, name, in_service=True):
+# TODO: add pipe material into pipe creation and simulation
+def create_pipe(net, from_bus, to_bus, length_m, diameter_m, name, material="steel", in_service=True):
     """
     Create a pipe between two existing buses on a given network
 
@@ -178,8 +180,9 @@ def create_pipe(net, from_bus, to_bus, length_m, diameter_m, name, in_service=Tr
     :param from_bus: the name of the already existing bus where the pipe starts
     :param to_bus: the name of the already existing bus where the pipe ends
     :param length_m: length of the pipe (in [m])
-    :param diameter_m: diameter of the pipe (in [m])
+    :param diameter_m: inner diameter of the pipe (in [m])
     :param name: name of the pipe
+    :param material: material of the pipe
     :param in_service: if False, the simulation will not take this pipe into account (default: True)
     :return: name of the pipe
     """
@@ -188,7 +191,7 @@ def create_pipe(net, from_bus, to_bus, length_m, diameter_m, name, in_service=Tr
     _check_level(net, from_bus, to_bus)
 
     idx = len(net.pipe.index)
-    net.pipe.loc[idx] = [name, from_bus, to_bus, length_m, diameter_m, in_service]
+    net.pipe.loc[idx] = [name, from_bus, to_bus, length_m, diameter_m, material, in_service]
     return name
 
 

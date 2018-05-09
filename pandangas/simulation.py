@@ -24,8 +24,6 @@ import fluids.vectorized as fvec
 from scipy.optimize import fsolve
 from thermo.chemical import Chemical
 
-# TODO: Simulation order between different pressure level
-
 
 def _scaled_loads_as_dict(net):
     loads = {row[1]: round(row[2]*row[4]/net.LHV, 6) for _, row in net.load.iterrows()}  # kW to kg/s
