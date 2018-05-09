@@ -34,7 +34,7 @@ import pandas as pd
 import logging
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 
 class _Network:
@@ -52,10 +52,10 @@ class _Network:
         self.feeder = pd.DataFrame(columns=["name", "bus", "p_lim_kW", "p_Pa"])
         self.station = pd.DataFrame(columns=["name", "bus_high", "bus_low", "p_lim_kW", "p_Pa"])
 
-        self.res_bus = pd.DataFrame(columns=["name", "p_Pa"])
-        self.res_pipe = pd.DataFrame(columns=["name", "m_dot_kg/s", "v_m/s", "p_kW", "loading_percent"])
-        self.res_feeder = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
-        self.res_station = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_percent"])
+        self.res_bus = pd.DataFrame(columns=["name", "p_Pa", "p_bar"])
+        self.res_pipe = pd.DataFrame(columns=["name", "m_dot_kg/s", "v_m/s", "p_kW", "loading_%"])
+        self.res_feeder = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_%"])
+        self.res_station = pd.DataFrame(columns=["name", "m_dot_kg/s", "p_kW", "loading_%"])
 
         self.keys = {"bus", "pipe", "load", "feeder", "station", "res_bus", "res_pipe", "res_feeder", "res_station"}
 

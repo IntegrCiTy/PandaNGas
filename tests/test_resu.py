@@ -25,7 +25,7 @@ def test_len_of_created_df(fix_create):
 def test_columns_of_created_df(fix_create):
     net = fix_create
     res.runpp(net)
-    assert set(net.res_bus.columns) == {"name", "p_Pa"}
-    assert set(net.res_pipe.columns) == {"name", "m_dot_kg/s", "v_m/s", "p_kW", "loading_percent"}
-    assert set(net.res_feeder.columns) == {"name", "m_dot_kg/s", "p_kW", "loading_percent"}
-    assert set(net.res_station.columns) == {"name", "m_dot_kg/s", "p_kW", "loading_percent"}
+    assert set(net.res_bus.columns) == {"name", "p_Pa", "p_bar"}
+    assert set(net.res_pipe.columns) == {"name", "m_dot_kg/s", "v_m/s", "p_kW", "loading_%"}
+    assert set(net.res_feeder.columns) == {"name", "m_dot_kg/s", "p_kW", "loading_%"}
+    assert set(net.res_station.columns) == {"name", "m_dot_kg/s", "p_kW", "loading_%"}
