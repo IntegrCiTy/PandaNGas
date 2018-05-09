@@ -108,6 +108,7 @@ def _run_sim(net, level="BP", t_grnd=10+273.15):
     g = top.graphs_by_level_as_dict(net)[level]
 
     gas = Chemical('natural gas', T=t_grnd, P=net.LEVELS[level])
+
     material = fluids.nearest_material_roughness('steel', clean=True)
     eps = fluids.material_roughness(material)
 
@@ -116,6 +117,9 @@ def _run_sim(net, level="BP", t_grnd=10+273.15):
 
     leng = np.array([data["L_m"] for _, _, data in g.edges(data=True)])
     diam = np.array([data["D_m"] for _, _, data in g.edges(data=True)])
+
+    materials = np.array([data["mat"] for _, _, data in g.edges(data=True)])
+    eps = np.array([fluids.material_roughness(m) for m in materials])
 
     load = _scaled_loads_as_dict(net)
     p_nom = _p_nom_feed_as_dict(net)

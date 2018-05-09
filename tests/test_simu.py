@@ -82,6 +82,6 @@ def test_run_sim_mp(fix_create):
     net = fix_create_full_mp()
     p_nodes, m_dot_pipes, m_dot_nodes, gas = sim._run_sim(net, level="MP")
     assert round(gas.rho, 3) == 0.683
-    assert p_nodes == {'BUS1': 89976.5, 'BUS2': 89957.3, 'BUS3': 89953.5, 'BUSF': 90000.0}
+    assert p_nodes == {'BUS1': 89968.3, 'BUS2': 89949.1, 'BUS3': 89945.3, 'BUSF': 90000.0}
     assert m_dot_pipes == {'PIPE0': 0.001181, 'PIPE1': 0.000469, 'PIPE2': 0.00045, 'PIPE3': 7.5e-05}
     assert m_dot_nodes == {'BUSF': -0.001181, 'BUS1': 0.000262, 'BUS2': 0.000394, 'BUS3': 0.000525}
