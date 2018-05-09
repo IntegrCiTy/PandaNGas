@@ -32,7 +32,7 @@ def _scaled_loads_as_dict(net):
     stations = {}
     for _, row in net.res_station.iterrows():
         idx_stat = get_index(row[0], net.station)
-        stations[net.station.at[idx_stat, "bus_high"]] = row[2]
+        stations[net.station.at[idx_stat, "bus_high"]] = round(row[1], 6)
     loads.update(stations)
     return loads
 
