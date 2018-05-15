@@ -109,9 +109,6 @@ def _run_sim(net, level="BP", t_grnd=10+273.15):
 
     gas = Chemical('natural gas', T=t_grnd, P=net.LEVELS[level])
 
-    material = fluids.nearest_material_roughness('steel', clean=True)
-    eps = fluids.material_roughness(material)
-
     x0 = _init_variables(g, net.LEVELS[level])
     i_mat = _i_mat(g)
 

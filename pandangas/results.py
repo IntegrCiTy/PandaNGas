@@ -49,7 +49,7 @@ def runpp(net, t_grnd=10+273.15):
             for node, value in p_nodes.items():
                 if node in net.bus["name"].unique():
                     idx = get_index(node, net.bus)
-                    net.res_bus.loc[idx] = [node, value, value*1E-5]
+                    net.res_bus.loc[idx] = [node, value, round(value*1E-5, 2)]
 
             for pipe, m_dot in m_dot_pipes.items():
                 idx = get_index(pipe, net.pipe)
