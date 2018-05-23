@@ -47,7 +47,7 @@ def _p_min_loads_as_dict(net):
 
 
 def _i_mat(graph):
-    return nx.incidence_matrix(graph, oriented=True).todense()
+    return np.asarray(nx.incidence_matrix(graph, oriented=True).todense())
 
 
 def _dp_from_m_dot_vec(m_dot, l, d, e, fluid):
@@ -60,13 +60,11 @@ def _dp_from_m_dot_vec(m_dot, l, d, e, fluid):
 
 
 def _eq_m_dot_sum(m_dot_pipes, m_dot_nodes, i_mat):
-    node_eq = np.matmul(i_mat, m_dot_pipes) - m_dot_nodes
-    return np.asarray(node_eq)[0]
+    return np.matmul(i_mat, m_dot_pipes) - m_dot_nodes
 
 
 def _eq_pressure(p_nodes, m_dot_pipes, i_mat, l, d, e, fluid):
-    dps_eq = np.matmul(p_nodes, i_mat) + _dp_from_m_dot_vec(m_dot_pipes, l, d, e, fluid)
-    return np.asarray(dps_eq)[0]
+    return np.matmul(p_nodes, i_mat) + _dp_from_m_dot_vec(m_dot_pipes, l, d, e, fluid)
 
 
 def _eq_m_dot_node(m_dot_nodes, gr, loads):

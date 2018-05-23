@@ -30,10 +30,10 @@ def test_i_mat(fix_create):
     net = fix_create
     g = top.graphs_by_level_as_dict(net)["BP"]
     i_mat = sim._i_mat(g)
-    assert type(i_mat) is np.matrixlib.defmatrix.matrix
+    assert type(i_mat) is np.ndarray
     waited = np.array([[1., 0., 1.], [-1., -1., 0.], [0., 1., -1.]])
     for l in waited:
-        assert l in np.asarray(i_mat)
+        assert l in i_mat
 
 
 def test_dp_from_m_dot():
