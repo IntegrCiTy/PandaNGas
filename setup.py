@@ -3,13 +3,11 @@
 
 from setuptools import setup, find_packages
 
-import pandangas
-
 setup(
 
     name='pandangas',
 
-    version=pandangas.__version__,
+    version='0.0.1',
 
     packages=find_packages(),
 
